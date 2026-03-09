@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import Sidebar from './components/Sidebar';
-import ChatInterface from './components/ChatInterface';
-import ActivityPanel from './components/ActivityPanel';
-import DocumentUpload from './components/DocumentUpload';
-import EmailModal from './components/EmailModal';
+import Sidebar from './components/Sidebar.jsx';
+import ChatInterface from './components/ChatInterface.jsx';
+import ActivityPanel from './components/ActivityPanel.jsx';
+import DocumentUpload from './components/DocumentUpload.jsx';
+import EmailModal from './components/EmailModal.jsx';
 
 const API_BASE_URL = 'http://localhost:8000';
 
