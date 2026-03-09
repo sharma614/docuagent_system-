@@ -4,7 +4,7 @@ from PyPDF2 import PdfReader
 import docx2txt
 from backend.utils.pinecone_client import PineconeClient
 from backend.utils.embeddings import EmbeddingProvider
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 class IngestionAgent:
     def __init__(self):
