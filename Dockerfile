@@ -26,8 +26,8 @@ COPY backend/ ./backend/
 # Copy built frontend from stage 1
 COPY --from=frontend-builder /app/frontend/dist ./static
 
-# Expose port
+# Expose port (Render will override with its own PORT env var)
 EXPOSE 8000
 
-# Start command (using uvicorn to serve both API and static frontend)
-CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Start command - use shell form so $PORT env variable is expanded at runtime
+CMD python -m uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}
