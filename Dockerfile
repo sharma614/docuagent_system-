@@ -1,7 +1,8 @@
 # Build Stage for Frontend
 FROM node:18-alpine AS frontend-builder
 WORKDIR /app/frontend
-COPY frontend/package*.json ./
+# Add a wildcard just in case, but ensure we are grabbing from the frontend folder
+COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm install
 COPY frontend/ ./
 RUN npm run build
