@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+pydantic
+pydantic-settings
+python-dotenv
+langchain
+langchain-anthropic
+langchain-community
+pinecone-client
+sentence-transformers
+PyPDF2
+docx2txt
+langchain-pinecone
