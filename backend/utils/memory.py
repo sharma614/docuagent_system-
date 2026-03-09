@@ -1,30 +1,22 @@
-from langchain.memory import ConversationBufferWindowMemory
-from langchain_community.chat_message_histories import ChatMessageHistory
+from langchain_core.chat_history import InMemoryChatMessageHistory
 
 class MemoryManager:
     def __init__(self, k=10):
         self.k = k
-        self.sessions = {}
+        self.sessions: dict[str, InMemoryChatMessageHistory] = {}
 
-    def get_memory(self, session_id: str):
+    def _get_or_create(self, session_id: str) -> InMemoryChatMessageHistory:
         if session_id not in self.sessions:
-            history = ChatMessageHistory()
-            self.sessions[session_id] = ConversationBufferWindowMemory(
-                chat_memory=history,
-                return_messages=True,
-                memory_key="chat_history",
-                k=self.k
-            )
+            self.sessions[session_id] = InMemoryChatMessageHistory()
         return self.sessions[session_id]
 
     def add_user_message(self, session_id: str, message: str):
-        memory = self.get_memory(session_id)
-        memory.chat_memory.add_user_message(message)
+        self._get_or_create(session_id).add_user_message(message)
 
     def add_ai_message(self, session_id: str, message: str):
-        memory = self.get_memory(session_id)
-        memory.chat_memory.add_ai_message(message)
+        self._get_or_create(session_id).add_ai_message(message)
 
-    def get_context(self, session_id: str):
-        memory = self.get_memory(session_id)
-        return memory.load_memory_variables({})["chat_history"]
+    def get_context(self, session_id: str) -> list:
+        history = self._get_or_create(session_id)
+        # Return last k*2 messages (user+ai pairs)
+        return history.messages[-(self.k * 2):]

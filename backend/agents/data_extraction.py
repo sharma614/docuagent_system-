@@ -1,7 +1,8 @@
 import os
 import json
 from langchain_anthropic import ChatAnthropic
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,24 +10,23 @@ load_dotenv()
 class DataExtractionAgent:
     def __init__(self):
         self.llm = ChatAnthropic(
-            model="claude-3-sonnet-20240229",
+            model="claude-3-5-sonnet-20241022",
             anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
             temperature=0
         )
         self.prompt = ChatPromptTemplate.from_template(
             "Extract structured data from the following document content. "
             "Identify tables, key-value pairs, and entities (people, organizations, dates). "
-            "Return the result STRICTLY as a JSON object with keys: 'tables', 'kv_pairs', 'entities'.\n\n"
+            "Return the result STRICTLY as a raw JSON object (no markdown) with keys: 'tables', 'kv_pairs', 'entities'.\n\n"
             "Content:\n{content}\n\n"
             "JSON Output:"
         )
+        self.chain = self.prompt | self.llm | StrOutputParser()
 
     def extract(self, content_chunks: list):
-        full_text = "\n\n".join([c['text'] for c in content_chunks[:5]]) # Smaller subset for extraction
-        _input = self.prompt.format_prompt(content=full_text)
-        response = self.llm.predict(_input.to_string())
+        full_text = "\n\n".join([c['text'] for c in content_chunks[:5]])
+        response = self.chain.invoke({"content": full_text})
         try:
-            # Clean up response to ensure valid JSON
             json_start = response.find("{")
             json_end = response.rfind("}") + 1
             return json.loads(response[json_start:json_end])
