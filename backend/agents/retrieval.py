@@ -1,5 +1,9 @@
-from backend.utils.pinecone_client import PineconeClient
-from backend.utils.embeddings import EmbeddingProvider
+try:
+    from backend.utils.pinecone_client import PineconeClient
+    from backend.utils.embeddings import EmbeddingProvider
+except ImportError:
+    from utils.pinecone_client import PineconeClient
+    from utils.embeddings import EmbeddingProvider
 
 class RetrievalAgent:
     def __init__(self):

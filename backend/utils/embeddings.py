@@ -1,4 +1,4 @@
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from sentence_transformers import SentenceTransformer
 import os
 
 class EmbeddingProvider:
@@ -7,14 +7,15 @@ class EmbeddingProvider:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(EmbeddingProvider, cls).__new__(cls)
-            # Using BGE Large (1024 dimensions) to match your Pinecone index
-            cls._instance.embeddings = HuggingFaceEmbeddings(
-                model_name="BAAI/bge-large-en-v1.5"
-            )
+            # Lightweight model: 384 dims, ~90MB, fast on CPU
+            # Must match the Pinecone index dimension (384)
+            print("[Embeddings] Loading sentence-transformer model...")
+            cls._instance.model = SentenceTransformer("all-MiniLM-L6-v2")
+            print("[Embeddings] Model loaded.")
         return cls._instance
 
-    def embed_query(self, text: str):
-        return self.embeddings.embed_query(text)
+    def embed_query(self, text: str) -> list:
+        return self.model.encode(text, convert_to_numpy=True).tolist()
 
-    def embed_documents(self, texts: list[str]):
-        return self.embeddings.embed_documents(texts)
+    def embed_documents(self, texts: list) -> list:
+        return self.model.encode(texts, convert_to_numpy=True).tolist()

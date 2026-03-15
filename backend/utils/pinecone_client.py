@@ -1,5 +1,6 @@
-from pinecone import Pinecone
+from pinecone import Pinecone, ServerlessSpec
 import os
+import time
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,15 +11,38 @@ class PineconeClient:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(PineconeClient, cls).__new__(cls)
-            cls._instance._pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-            cls._instance.index_name = os.getenv("PINECONE_INDEX_NAME")
+            api_key = os.getenv("PINECONE_API_KEY")
+            cls._instance._pc = Pinecone(api_key=api_key)
+            cls._instance.index_name = os.getenv("PINECONE_INDEX_NAME", "docuagent")
+
+            # Check if index exists — if not, create it
+            existing = [idx.name for idx in cls._instance._pc.list_indexes()]
+            if cls._instance.index_name not in existing:
+                print(f"[Pinecone] Index '{cls._instance.index_name}' not found. Creating...")
+                cls._instance._pc.create_index(
+                    name=cls._instance.index_name,
+                    dimension=384,   # matches all-MiniLM-L6-v2
+                    metric="cosine",
+                    spec=ServerlessSpec(cloud="aws", region="us-east-1")
+                )
+                # Wait until ready (up to 60s)
+                for _ in range(30):
+                    try:
+                        info = cls._instance._pc.describe_index(cls._instance.index_name)
+                        if info.status.get("ready", False):
+                            break
+                    except Exception:
+                        pass
+                    print("[Pinecone] Waiting for index to be ready...")
+                    time.sleep(2)
+                print(f"[Pinecone] Index '{cls._instance.index_name}' is ready.")
+            else:
+                print(f"[Pinecone] Using existing index '{cls._instance.index_name}'.")
+
             cls._instance.index = cls._instance._pc.Index(cls._instance.index_name)
         return cls._instance
 
     def upsert_vectors(self, vectors, namespace):
-        """
-        vectors: list of dictionaries {'id': str, 'values': list, 'metadata': dict}
-        """
         return self.index.upsert(vectors=vectors, namespace=namespace)
 
     def query_vectors(self, vector, top_k=5, namespace=None, filter=None):
@@ -34,6 +58,5 @@ class PineconeClient:
         return self.index.delete(ids=ids, namespace=namespace)
 
     def list_namespaces(self):
-        # Note: This might require specific Pinecone versions or API calls
         stats = self.index.describe_index_stats()
-        return stats.get('namespaces', {}).keys()
+        return list(stats.get('namespaces', {}).keys())

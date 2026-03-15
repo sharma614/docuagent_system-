@@ -1,5 +1,5 @@
 import os
-from langchain_anthropic import ChatAnthropic
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
@@ -8,9 +8,9 @@ load_dotenv()
 
 class QAAgent:
     def __init__(self):
-        self.llm = ChatAnthropic(
-            model="claude-3-5-sonnet-20241022",
-            anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
+        self.llm = ChatGroq(
+            model="llama-3.3-70b-versatile",
+            groq_api_key=os.getenv("GROQ_API_KEY"),
             temperature=0
         )
         self.prompt = ChatPromptTemplate.from_template(

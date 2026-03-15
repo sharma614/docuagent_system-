@@ -1,5 +1,5 @@
 import os
-from langchain_anthropic import ChatAnthropic
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
@@ -10,9 +10,9 @@ load_dotenv()
 
 class OrchestratorAgent:
     def __init__(self):
-        self.llm = ChatAnthropic(
-            model="claude-3-5-sonnet-20241022",
-            anthropic_api_key=os.getenv("ANTHROPIC_API_KEY"),
+        self.llm = ChatGroq(
+            model="llama-3.3-70b-versatile",
+            groq_api_key=os.getenv("GROQ_API_KEY"),
             temperature=0
         )
         self.prompt = ChatPromptTemplate.from_template(
@@ -32,7 +32,6 @@ class OrchestratorAgent:
     def route(self, user_input: str):
         output = self.chain.invoke({"user_input": user_input})
         try:
-            # Strip markdown code fences if present
             output = re.sub(r"```json|```", "", output).strip()
             return json.loads(output)
         except Exception:

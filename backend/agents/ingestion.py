@@ -2,9 +2,16 @@ import os
 import uuid
 from PyPDF2 import PdfReader
 import docx2txt
-from backend.utils.pinecone_client import PineconeClient
-from backend.utils.embeddings import EmbeddingProvider
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+try:
+    from backend.utils.pinecone_client import PineconeClient
+    from backend.utils.embeddings import EmbeddingProvider
+except ImportError:
+    from utils.pinecone_client import PineconeClient
+    from utils.embeddings import EmbeddingProvider
+try:
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+except ImportError:
+    from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 class IngestionAgent:
     def __init__(self):
