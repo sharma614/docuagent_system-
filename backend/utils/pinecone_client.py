@@ -60,3 +60,8 @@ class PineconeClient:
     def list_namespaces(self):
         stats = self.index.describe_index_stats()
         return list(stats.get('namespaces', {}).keys())
+
+    def delete_namespace(self, namespace: str) -> None:
+        """Delete ALL vectors in a namespace."""
+        self.index.delete(delete_all=True, namespace=namespace)
+

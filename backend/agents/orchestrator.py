@@ -23,7 +23,8 @@ class OrchestratorAgent:
             "- summarizer: Summarize one or more documents.\n"
             "- translator: Translate content to another language.\n"
             "- data_extraction: Extract structured data (tables, entities).\n"
-            "- email_drafting: Draft professional emails using document context.\n\n"
+            "- email_drafting: Draft professional emails using document context.\n"
+            "- comparison: Compare two documents side-by-side (similarities, differences, recommendations).\n\n"
             "User Request: {user_input}\n\n"
             'Respond ONLY with a raw JSON object (no markdown) like: {{"agent": "qa", "reasoning": "...", "parameters": {{}}}}'
         )

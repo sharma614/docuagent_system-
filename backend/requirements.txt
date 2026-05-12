@@ -13,3 +13,4 @@ sentence-transformers
 PyPDF2
 docx2txt
 langchain-pinecone
+groq
